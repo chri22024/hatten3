@@ -23,7 +23,7 @@ void setup() {
   field = new GameField(screenWidth, screenHeight, color(0, 100, 200));
   myPaddle = new Paddle(screenWidth / 2, screenHeight - 50, 30, color(0, 255, 0)); // 自分のパドルは緑
   enemyPaddle = new Paddle(screenWidth / 2, 50, 30, color(255, 255, 255)); // 相手のパドルは白
-  gamePuck = new Puck(screenWidth / 2, screenHeight / 2, 20, color(255, 0, 0));
+  gamePuck = new Puck(screenWidth / 2, screenHeight / 2);
 
 
   client = new Client(this, "127.0.0.1", 5204);
@@ -54,14 +54,12 @@ void draw() {
   // sendData();
 
   // 自分のパドルの位置をマウスで更新
-  if (mousePressed) {
-    myPaddle.setPosition(mouseX, mouseY);
-    // パドルの位置を画面内に制限 (オプション)
-    PVector pos = myPaddle.getPosition();
-    pos.x = constrain(pos.x, myPaddle.radius, screenWidth - myPaddle.radius);
-    pos.y = constrain(pos.y, myPaddle.radius, screenHeight - myPaddle.radius);
-    myPaddle.setPosition(pos.x, pos.y);
-  }
+  myPaddle.setPosition(mouseX, mouseY);
+  // パドルの位置を画面内に制限 (オプション)
+  PVector pos = myPaddle.getPosition();
+  pos.x = constrain(pos.x, myPaddle.radius, screenWidth - myPaddle.radius);
+  pos.y = constrain(pos.y, myPaddle.radius, screenHeight - myPaddle.radius);
+  myPaddle.setPosition(pos.x, pos.y);
 
 
 }
@@ -95,11 +93,88 @@ void sendData() {
   // client.write(dataToSend);
   // println("送信データ: " + dataToSend);
   //
-  client.write(myScore);
 }
 
 void clientEvent(Client client) {
   dataIn = client.read();
 
   println(dataIn);
+}
+
+
+
+class GameField {
+  int width, height;
+  color fieldColor;
+
+  GameField(int w, int h, color c) {
+    width = w;
+    height = h;
+    fieldColor = c;
+  }
+
+  void display() {
+    background(fieldColor);
+    stroke(255);
+    strokeWeight(3);
+    line(width / 2, 0, width / 2, height); // 中央線
+    line(0, 50, width, 50); // 上側のゴールライン
+    line(0, height - 50, width, height - 50); // 下側のゴールライン
+  }
+}
+
+
+
+class Paddle {
+  float x, y;
+  float radius;
+  color paddleColor;
+
+  Paddle(float startX, float startY, float r, color c) {
+    x = startX;
+    y = startY;
+    radius = r;
+    paddleColor = c;
+  }
+
+  void display() {
+    fill(paddleColor);
+    noStroke();
+    ellipse(x, y, radius * 2, radius * 2);
+  }
+
+  void setPosition(float newX, float newY) {
+    x = newX;
+    y = newY;
+  }
+
+  PVector getPosition() {
+    return new PVector(x, y);
+  }
+}
+
+
+
+class Puck {
+  float x, y;
+
+  Puck(float startX, float startY) {
+    x = startX;
+    y = startY;
+  }
+
+  void display() {
+    fill(120);
+    noStroke();
+    ellipse(x, y, 40 * 2, 40 * 2);
+  }
+
+  void setPosition(float newX, float newY) {
+    x = newX;
+    y = newY;
+  }
+
+  PVector getPosition() {
+    return new PVector(x, y);
+  }
 }
