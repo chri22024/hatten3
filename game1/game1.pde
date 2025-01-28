@@ -1,7 +1,8 @@
 import processing.net.*;
 
 Client client; // TCPクライアントオブジェクト
-
+int screenWidth = 600;
+int screenHeight = 400;
 
 
 // スコア表示クラス (ここでは簡易的にグローバル変数で管理)
@@ -24,8 +25,6 @@ void setup() {
   opponentPaddle = new Paddle(screenWidth / 2, 50, 30, color(255, 255, 255)); // 相手のパドルは白
   gamePuck = new Puck(screenWidth / 2, screenHeight / 2, 20, color(255, 0, 0));
 
-  // TCPクライアントの初期化 (サーバーへの接続はdraw()で行う例)
-  // client = new Client(this, "サーバーIPアドレス", ポート番号); // サーバーのIPアドレスとポート番号を指定
 }
 
 void draw() {
@@ -36,7 +35,7 @@ void draw() {
   drawScore();
 
   // パドル描画
-  opponentPaddle.display(); // 相手パドルを先に描画 (重なり順序を考慮する場合)
+  enemyPaddle.display(); // 相手パドルを先に描画 (重なり順序を考慮する場合)
   myPaddle.display();
 
   // パック描画
@@ -65,7 +64,7 @@ void drawScore() {
   textSize(32);
   textAlign(CENTER, CENTER);
   text(myScore, screenWidth / 4, screenHeight / 2); // 左側に自分のスコア
-  text(opponentScore, screenWidth * 3 / 4, screenHeight / 2); // 右側に相手のスコア
+  text(enemyScore, screenWidth * 3 / 4, screenHeight / 2); // 右側に相手のスコア
 }
 
 
