@@ -7,11 +7,11 @@ int screenHeight = 400;
 
 // スコア表示クラス (ここでは簡易的にグローバル変数で管理)
 int myScore = 0;
-int opponentScore = 0;
+int enemyScore = 0;
 
 // ゲームオブジェクトのインスタンス
 Paddle myPaddle;
-Paddle opponentPaddle;
+Paddle enemyPaddle;
 Puck gamePuck;
 GameField field;
 
@@ -22,7 +22,7 @@ void setup() {
   // ゲームオブジェクトの初期化
   field = new GameField(screenWidth, screenHeight, color(0, 100, 200));
   myPaddle = new Paddle(screenWidth / 2, screenHeight - 50, 30, color(0, 255, 0)); // 自分のパドルは緑
-  opponentPaddle = new Paddle(screenWidth / 2, 50, 30, color(255, 255, 255)); // 相手のパドルは白
+  enemyPaddle = new Paddle(screenWidth / 2, 50, 30, color(255, 255, 255)); // 相手のパドルは白
   gamePuck = new Puck(screenWidth / 2, screenHeight / 2, 20, color(255, 0, 0));
 
 }
