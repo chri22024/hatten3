@@ -8,7 +8,7 @@ void setup(){
 
   size(200, 200);
 
-  myClient = new Client(this, "127.0.0.1", 5024);
+  myClient = new Client(this, "127.0.0.1", 5204);
 }
 void draw(){
 
