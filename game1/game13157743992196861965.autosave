@@ -44,8 +44,6 @@ void draw() {
 
   // パック描画
   gamePuck.display();
-  
-  sendData();
 
   // サーバーとの通信処理 (仮の場所)
   // if (client != null && client.available() > 0) {
@@ -86,6 +84,8 @@ void receiveData() {
   //   // ...
   //   println("受信データ: " + data);
   // }
+  
+  
 }
 
 // データ送信関数 (TCP通信。まだ未実装)
@@ -94,8 +94,6 @@ void sendData() {
   // String dataToSend = myPaddlePos.x + "," + myPaddlePos.y + "\n";
   // client.write(dataToSend);
   // println("送信データ: " + dataToSend);
-  //
-  client.write(myScore);
 }
 
 void clientEvent(Client client) {
