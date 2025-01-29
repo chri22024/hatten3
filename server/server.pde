@@ -1,4 +1,3 @@
-// サーバー側 (HockeyServer.pde)
 import processing.net.*;
 
 Server server;
@@ -6,22 +5,24 @@ Game game;
 //Player player;
 float playerY;
 
-int windowW = 800;
-int windowH = 600;
-boolean one = true;
+final int port = 5204;
+final int windowW = 800;
+final int windowH = 600;
+boolean one = false;
 void setup() {
 
-  server = new Server(this, 12345);
+  server = new Server(this, port);
   game = new Game();
   //player = new Player();
-  println("サーバー起動: ポート12345");
+  println("サーバー起動");
 }
 
 void draw() {
   background(0);
   game.update();
   //game.display();
-
+  
+  
   handleClientCommunication();
 }
 
@@ -42,6 +43,8 @@ void handleClientCommunication() {
         gameState.setFloat("ballVelY", game.ball.velocity.y);
         gameState.setFloat("aiY", game.aiPlayer.y);
         gameState.setFloat("playerY", game.player.y);
+        gameState.setInt("playerScore", game.player.score);
+        gameState.setInt("aiPlayerScore", game.aiPlayer.score);
 
         JSONObject playerState = parseJSONObject(input.trim());
         playerY = playerState.getFloat("playerY");
@@ -56,36 +59,41 @@ void handleClientCommunication() {
   }
 }
 
-// ゲームクラス
 class Game {
   Ball ball;
   Player player;
   AIPlayer aiPlayer;
 
+
+
   Game() {
     ball = new Ball();
-    player = new Player(windowW - 30);    // プレイヤーは右側
-    aiPlayer = new AIPlayer(30);        // AIは左側
+    player = new Player(windowW - 30);
+    aiPlayer = new AIPlayer(30);
   }
 
   void update() {
     ball.update();
     aiPlayer.update(ball);
-    checkCollisions();
+    checkHit();
 
-    //println(player.y);
+    println("score is " + player.score + ":" + "score is " + aiPlayer.score);
   }
 
-  void checkCollisions() {
-    if (ball.checkPaddleCollision(player)) {
+  void checkHit() {
+    if (ball.isHit(player)) {
       ball.reverseX();
       ball.addSpeed(0.5);
     }
-    if (ball.checkPaddleCollision(aiPlayer)) {
+    if (ball.isHit(aiPlayer)) {
       ball.reverseX();
       ball.addSpeed(0.5);
     }
   }
+
+  void addScore(Paddle p){
+    p.score++;
+  }  
 
   //void display() {
   //  ball.display();
@@ -98,7 +106,6 @@ class Game {
   }
 }
 
-// ボールクラス
 class Ball {
   PVector position;
   PVector velocity;
@@ -121,15 +128,18 @@ class Ball {
       println(position);
       one = false;
     }
-    // 上下の壁での反射
     if (position.y - size < 0 || position.y + size > windowH) {
       velocity.y *= -1;
       position.y = constrain(position.y, size, windowH - size);
     }
 
-    // 左右の壁に当たった場合はリセット
-    if (position.x < 0 || position.x > windowW) {
+    if (position.x < 0) {
+      game.addScore(game.player);
       reset();
+    }else if(position.x > windowW){
+      game.addScore(game.aiPlayer);
+      reset();
+
     }
   }
 
@@ -144,12 +154,20 @@ class Ball {
   //  ellipse(position.x, position.y, size * 2, size * 2);
   //}
 
-  boolean checkPaddleCollision(Paddle paddle) {
-    return position.x > paddle.x - size - paddle.paddlewindowW/2 &&
+  boolean isHit(Paddle paddle) {
+
+
+    boolean isHit = false;
+    if(position.x > paddle.x - size - paddle.paddlewindowW/2 &&
       position.x < paddle.x + paddle.paddlewindowW/2 + size &&
       position.y > paddle.y - paddle.paddlewindowH/2 - size &&
-      position.y < paddle.y + paddle.paddlewindowH/2 + size;
+      position.y < paddle.y + paddle.paddlewindowH/2 + size){
+
+      isHit = true;
+    }
+    return isHit;
   }
+
 
   void reverseX() {
     velocity.x *= -1;
@@ -163,17 +181,22 @@ class Ball {
   }
 }
 
-// パドルの基底クラス
 class Paddle {
   float x, y;
   float paddlewindowW, paddlewindowH;
+
+  int score;
 
   Paddle(float x) {
     this.x = x;
     this.y = windowH/2;
     this.paddlewindowW = 10;
     this.paddlewindowH = 100;
+    this.score = 0;
   }
+
+
+
 
   //void display() {
   //  fill(255);
@@ -197,18 +220,15 @@ class Paddle {
   //  println(y + "," + newY + "," + windowH);
   //}
 }
-
-// プレイヤークラス
 class Player extends Paddle {
   Player(float x) {
     super(x);
   }
 }
 
-// AIプレイヤークラス
 class AIPlayer extends Paddle {
   float reactionSpeed = 0.1;
-  float predictionError = 20;
+  float predictionError = 200;
 
   AIPlayer(float x) {
     super(x);

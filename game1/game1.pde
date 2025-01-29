@@ -1,26 +1,28 @@
-// クライアント側 (HockeyClient.pde)
 import processing.net.*;
 
 Client client;
 Ball ball;
 Player player;
 AIPlayer aiPlayer;
-final String SERVER_IP = "127.0.0.1";
-final int PORT = 12345;
+final String IP = "127.0.0.1";
+final int PORT = 5204;
 
 void setup() {
   size(800, 600);
-  client = new Client(this, SERVER_IP, PORT);
+  client = new Client(this, IP, PORT);
   ball = new Ball();
   player = new Player(width - 30);
   aiPlayer = new AIPlayer(30);
-  println("サーバーに接続: " + SERVER_IP + ":" + PORT);
+  println("サーバーに接続:");
 }
 
 void draw() {
   background(0);
   handleServerCommunication();
   displayGame();
+  
+  
+  //println(player.score + ":" + aiPlayer.score);
 }
 
 void handleServerCommunication() {
@@ -34,6 +36,8 @@ void handleServerCommunication() {
         ball.velocity.x = gameState.getFloat("ballVelX");
         ball.velocity.y = gameState.getFloat("ballVelY");
         aiPlayer.y = gameState.getFloat("aiY");
+        player.score = gameState.getInt("playerScore");
+        aiPlayer.score = gameState.getInt("aiPlayerScore");
         //player.y = gameState.getFloat("playerY");
       }
       catch (Exception e) {
@@ -51,6 +55,7 @@ void displayGame() {
   ball.display();
   player.display();
   aiPlayer.display();
+  displayScore(player, aiPlayer);
 }
 
 void mouseMoved() {
@@ -60,7 +65,11 @@ void mouseMoved() {
   //println(player.y);
 }
 
-// ボールクラス
+void displayScore(Paddle p1, Paddle p2){
+  textSize(30);
+  text("SCORE >" + p2.score + ":" + p1.score, width * 1/3, 100);
+}
+
 class Ball {
   PVector position;
   PVector velocity;
@@ -79,16 +88,17 @@ class Ball {
   }
 }
 
-// パドルの基底クラス
 class Paddle {
   float x, y;
   float paddleWidth, paddleHeight;
+  int score;
 
   Paddle(float x) {
     this.x = x;
     this.y = height/2;
     this.paddleWidth = 10;
     this.paddleHeight = 100;
+    this.score = 0;
   }
 
   void display() {
@@ -108,20 +118,18 @@ class Paddle {
     } else {
       n = newY;
     }
-    
+
     y = n;
-    println(y + "," + newY + "," + height);
+    //println(y + "," + newY + "," + height);
   }
 }
 
-// プレイヤークラス
 class Player extends Paddle {
   Player(float x) {
     super(x);
   }
 }
 
-// AIプレイヤークラス（クライアント側では表示用のみ）
 class AIPlayer extends Paddle {
   AIPlayer(float x) {
     super(x);
