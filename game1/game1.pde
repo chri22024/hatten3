@@ -18,14 +18,14 @@ void setup() {
 
 void draw() {
   background(0);
-  handleServerCommunication();
+  data();
   displayGame();
   
   
   //println(player.score + ":" + aiPlayer.score);
 }
 
-void handleServerCommunication() {
+void data() {
   if (client.available() > 0) {
     String data = client.readString();
     if (data != null && data.trim().length() > 0) {

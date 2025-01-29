@@ -23,10 +23,10 @@ void draw() {
   //game.display();
   
   
-  handleClientCommunication();
+  data();
 }
 
-void handleClientCommunication() {
+void data() {
   Client client = server.available();
   if (client != null) {
     String input = client.readString();
@@ -116,7 +116,7 @@ class Ball {
     position = new PVector(windowW/2, windowH/2);
     velocity = new PVector(5, random(-3, 3));
     size = 10;
-    maxSpeed = 15;
+    maxSpeed = 17;
   }
 
   void update() {
@@ -173,10 +173,13 @@ class Ball {
     velocity.x *= -1;
   }
 
-  void addSpeed(float increment) {
+  void addSpeed(float addNum) {
     float speed = velocity.mag();
     if (speed < maxSpeed) {
-      velocity.mult(1 + increment);
+  
+      
+      velocity.x *= 1 + addNum;
+      velocity.y *= 1 + addNum;
     }
   }
 }
@@ -227,7 +230,7 @@ class Player extends Paddle {
 }
 
 class AIPlayer extends Paddle {
-  float reactionSpeed = 0.1;
+  float reactionSpeed = 0.03;
   float predictionError = 200;
 
   AIPlayer(float x) {
